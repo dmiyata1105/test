@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>介護記録作成アシスタント</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f7;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* サイドバー（履歴） */
+    .sidebar {
+      width: 320px;
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+    
+    .sidebar-header h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .search-box:focus {
+      border-color: #007AFF;
+    }
+    
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .history-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .history-item:hover,
+    .history-item:active {
+      background: #f8f8f8;
+    }
+    
+    .history-item.active {
+      background: #e8f4ff;
+      border-left: 3px solid #007AFF;
+    }
+    
+    .history-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: #1a1a1a;
+    }
+    
+    .history-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    
+    .history-preview {
+      font-size: 13px;
+      color: #888;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .record-type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    
+    .badge-standard {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .badge-monitoring {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+    
+    .badge-plan {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    /* メインコンテンツ */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 30px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* カード */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* 設定カード */
+    .setting-card {
+      background: #fff8e1;
+      border: 2px solid #ffd54f;
+    }
+    
+    .api-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .api-status.connected {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+    
+    .api-status.disconnected {
+      background: #ffcdd2;
+      color: #c62828;
+    }
+    
+    /* フォーム要素 */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      border-color: #007AFF;
+    }
+    
+    textarea.form-input {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    
+    /* ボタン */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      justify-content: center;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-primary {
+      background: #007AFF;
+      color: white;
+    }
+    
+    .btn-primary:hover,
+    .btn-primary:active {
+      background: #0056b3;
+    }
+    
+    .btn-success {
+      background: #34C759;
+      color: white;
+    }
+    
+    .btn-success:hover,
+    .btn-success:active {
+      background: #28a745;
+    }
+    
+    .btn-danger {
+      background: #FF3B30;
+      color: white;
+    }
+    
+    .btn-danger:hover,
+    .btn-danger:active {
+      background: #dc3545;
+    }
+    
+    .btn-secondary {
+      background: #8E8E93;
+      color: white;
+    }
+    
+    .btn-secondary:hover,
+    .btn-secondary:active {
+      background: #6c757d;
+    }
+    
+    .btn-block {
+      width: 100%;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    /* マイクボタン */
+    .mic-button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #007AFF;
+      color: white;
+      border: none;
+      font-size: 32px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+    }
+    
+    .mic-button:active {
+      transform: scale(0.95);
+    }
+    
+    .mic-button.recording {
+      background: #FF3B30;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255,59,48,0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 20px rgba(255,59,48,0);
+      }
+    }
+    
+    /* ステータスメッセージ */
+    .status-message {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin: 12px 0;
+      font-weight: 600;
+    }
+    
+    .status-info {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .status-success {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+    
+    .status-error {
+      background: #ffcdd2;
+      color: #c62828;
+    }
+    
+    .status-warning {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+    
+    /* 辞書管理 */
+    .dictionary-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    
+    .dictionary-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .dictionary-item:last-child {
+      border-bottom: none;
+    }
+    
+    .dictionary-text {
+      flex: 1;
+    }
+    
+    .dictionary-wrong {
+      color: #666;
+      font-size: 13px;
+    }
+    
+    .dictionary-correct {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+    
+    .dictionary-category {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #666;
+      margin-right: 8px;
+    }
+    
+    /* ローディング */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        height: 40%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      
+      .main-content {
+        height: 60%;
+        padding: 20px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .card {
+        padding: 16px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .btn-group .btn {
+        width: 100%;
+      }
+    }
+    
+    /* ユーティリティ */
+    .hidden {
+      display: none !important;
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .mt-2 {
+      margin-top: 16px;
+    }
+    
+    .mb-2 {
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- サイドバー（履歴） -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>📚 記録履歴</h2>
+        <input type="text" class="search-box" id="searchBox" placeholder="記録を検索...">
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="text-center" style="padding: 40px 20px; color: #999;">
+          <p>記録がまだありません</p>
+          <p style="font-size: 12px; margin-top: 8px;">記録を保存すると、ここに表示されます</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- メインコンテンツ -->
+    <div class="main-content">
+      <div class="header">
+        <h1>🏥 介護記録作成アシスタント</h1>
+        <p>音声入力からAIで介護記録を自動生成</p>
+      </div>
+      
+      <!-- API設定カード -->
+      <div class="card setting-card" id="apiSettingCard">
+        <div class="card-title">⚙️ API設定</div>
+        <div id="apiStatus" class="api-status disconnected">未接続</div>
+        
+        <div class="form-group">
+          <label class="form-label">Google Gemini API Key</label>
+          <input type="password" class="form-input" id="apiKeyInput" placeholder="AIza... で始まるAPIキーを入力">
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #007AFF;">👉 ここをクリックしてAPIキーを取得</a>
+          </p>
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveApiKey()">💾 保存してテスト</button>
+          <button class="btn btn-secondary" onclick="toggleApiCard()">閉じる</button>
+        </div>
+        
+        <div id="apiMessage" style="margin-top: 12px;"></div>
+      </div>
+      
+      <!-- 音声入力カード -->
+      <div class="card">
+        <div class="card-title">🎤 音声入力</div>
+        
+        <button class="mic-button" id="micButton" onclick="toggleRecording()">
+          <span id="micIcon">🎤</span>
+        </button>
+        
+        <div id="recordingStatus" class="status-message status-info hidden">
+          準備中...
+        </div>
+        
+        <div class="form-group mt-2">
+          <label class="form-label">文字起こしテキスト</label>
+          <textarea class="form-input" id="inputText" placeholder="マイクボタンをタップして話すか、ここに直接入力してください..."></textarea>
+          <p style="font-size: 12px; color: #666; margin-top: 4px;">
+            文字数: <span id="charCount">0</span>
+          </p>
+        </div>
+      </div>
+      
+      <!-- 記録生成カード -->
+      <div class="card">
+        <div class="card-title">✍️ 記録文作成</div>
+        
+        <div class="form-group">
+          <label class="form-label">タイトル</label>
+          <input type="text" class="form-input" id="recordTitle" placeholder="例: 田中様 午前の様子">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">記録タイプ</label>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="generateRecord('standard')">📝 経過観察記録</button>
+            <button class="btn btn-primary" onclick="generateRecord('monitoring')">📊 モニタリング記録</button>
+            <button class="btn btn-primary" onclick="generateRecord('plan')">📋 支援計画書用</button>
+          </div>
+        </div>
+        
+        <div id="generationStatus" class="hidden"></div>
+        
+        <div class="form-group mt-2 hidden" id="resultArea">
+          <label class="form-label">生成された記録文</label>
+          <textarea class="form-input" id="outputText" rows="10" readonly></textarea>
+          
+          <div class="btn-group mt-2">
+            <button class="btn btn-success btn-block" onclick="copyToClipboard()">📋 クリップボードにコピー</button>
+            <button class="btn btn-primary btn-block" onclick="saveCurrentRecord()">💾 保存</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 用語辞書管理カード -->
+      <div class="card">
+        <div class="card-title">📖 用語辞書管理</div>
+        
+        <div class="form-group">
+          <label class="form-label">カスタム用語を追加</label>
+          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" class="form-input" id="wrongWord" placeholder="誤認識語（例: たなかさん）" style="flex: 1;">
+            <input type="text" class="form-input" id="correctWord" placeholder="正しい表記（例: 田中様）" style="flex: 1;">
+          </div>
+          <button class="btn btn-success btn-block" onclick="addDictionaryEntry()">➕ 追加</button>
+        </div>
+        
+        <div class="btn-group mt-2">
+          <button class="btn btn-secondary" onclick="loadDictionary()">🔄 辞書を読み込む</button>
+          <button class="btn btn-danger" onclick="resetDictionary()">🗑️ 初期状態に戻す</button>
+        </div>
+        
+        <div id="dictionaryList" class="dictionary-list mt-2">
+          <div class="text-center" style="padding: 20px; color: #999;">
+            辞書を読み込んでいません
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =============================================================================
+    // グローバル変数
+    // =============================================================================
+    
+    let recognition = null;
+    let isRecording = false;
+    let currentRecordId = null;
+    let dictionaryEntries = [];
+    let allRecords = [];
+    
+    // =============================================================================
+    // 初期化
+    // =============================================================================
+    
+    window.onload = function() {
+      initSpeechRecognition();
+      loadApiStatus();
+      loadAllRecords();
+      loadDictionary();
+      
+      // 入力テキストの文字数カウント
+      document.getElementById('inputText').addEventListener('input', updateCharCount);
+      
+      // 検索ボックス
+      document.getElementById('searchBox').addEventListener('input', filterHistory);
+    };
+    
+    function updateCharCount() {
+      const text = document.getElementById('inputText').value;
+      document.getElementById('charCount').innerText = text.length;
+    }
+    
+    // =============================================================================
+    // API設定
+    // =============================================================================
+    
+    function loadApiStatus() {
+      google.script.run
+        .withSuccessHandler(function(apiKey) {
+          if (apiKey && apiKey.startsWith('AIza')) {
+            document.getElementById('apiStatus').className = 'api-status connected';
+            document.getElementById('apiStatus').innerText = '✅ 接続済み';
+            document.getElementById('apiKeyInput').value = apiKey;
+            document.getElementById('apiSettingCard').classList.add('hidden');
+          } else {
+            document.getElementById('apiStatus').className = 'api-status disconnected';
+            document.getElementById('apiStatus').innerText = '❌ 未接続';
+          }
+        })
+        .getGeminiApiKey();
+    }
+    
+    function saveApiKey() {
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      
+      if (!apiKey) {
+        showMessage('apiMessage', 'APIキーを入力してください', 'error');
+        return;
+      }
+      
+      if (!apiKey.startsWith('AIza')) {
+        showMessage('apiMessage', 'APIキーは "AIza" で始まる必要があります', 'error');
+        return;
+      }
+      
+      showMessage('apiMessage', 'テスト中...', 'info');
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            google.script.run
+              .withSuccessHandler(function() {
+                showMessage('apiMessage', '✅ 接続成功！APIキーを保存しました', 'success');
+                loadApiStatus();
+              })
+              .setGeminiApiKey(apiKey);
+          } else {
+            showMessage('apiMessage', result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showMessage('apiMessage', '❌ 接続失敗: ' + error.message, 'error');
+        })
+        .testGeminiConnection(apiKey);
+    }
+    
+    function toggleApiCard() {
+      document.getElementById('apiSettingCard').classList.toggle('hidden');
+    }
+    
+    // =============================================================================
+    // 音声認識
+    // =============================================================================
+    
+    function initSpeechRecognition() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showStatus('このブラウザは音声認識に対応していません。Safariをご利用ください。', 'error');
+        document.getElementById('micButton').disabled = true;
+        return;
+      }
+      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      
+      recognition.lang = 'ja-JP';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onstart = function() {
+        isRecording = true;
+        document.getElementById('micButton').classList.add('recording');
+        document.getElementById('micIcon').innerText = '⏹️';
+        showStatus('🎤 録音中... 話してください', 'info');
+      };
+      
+      recognition.onresult = function(event) {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          const currentText = document.getElementById('inputText').value;
+          const correctedText = applyDictionary(finalTranscript);
+          document.getElementById('inputText').value = currentText + (currentText ? ' ' : '') + correctedText;
+          updateCharCount();
+        }
+        
+        if (interimTranscript) {
+          showStatus('🎤 認識中: ' + interimTranscript, 'info');
+        }
+      };
+      
+      recognition.onerror = function(event) {
+        console.error('音声認識エラー:', event.error);
+        if (event.error === 'not-allowed') {
+          showStatus('❌ マイクへのアクセスが拒否されました。設定から許可してください。', 'error');
+        } else {
+          showStatus('❌ エラーが発生しました: ' + event.error, 'error');
+        }
+        stopRecording();
+      };
+      
+      recognition.onend = function() {
+        if (isRecording) {
+          // 自動再開
+          try {
+            recognition.start();
+          } catch (e) {
+            stopRecording();
+          }
+        }
+      };
+    }
+    
+    function toggleRecording() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    }
+    
+    function startRecording() {
+      if (!recognition) {
+        showStatus('❌ 音声認識が初期化されていません', 'error');
+        return;
+      }
+      
+      try {
+        recognition.start();
+      } catch (e) {
+        console.error('録音開始エラー:', e);
+      }
+    }
+    
+    function stopRecording() {
+      isRecording = false;
+      if (recognition) {
+        recognition.stop();
+      }
+      document.getElementById('micButton').classList.remove('recording');
+      document.getElementById('micIcon').innerText = '🎤';
+      showStatus('✅ 録音を停止しました', 'success');
+      
+      setTimeout(() => {
+        document.getElementById('recordingStatus').classList.add('hidden');
+      }, 2000);
+    }
+    
+    function showStatus(message, type) {
+      const statusEl = document.getElementById('recordingStatus');
+      statusEl.innerText = message;
+      statusEl.className = 'status-message status-' + type;
+      statusEl.classList.remove('hidden');
+    }
+    
+    // =============================================================================
+    // 用語辞書
+    // =============================================================================
+    
+    function loadDictionary() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            dictionaryEntries = result.entries;
+            renderDictionary();
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('辞書読み込みエラー:', error);
+        })
+        .getAllDictionaryEntries();
+    }
+    
+    function renderDictionary() {
+      const listEl = document.getElementById('dictionaryList');
+      
+      if (dictionaryEntries.length === 0) {
+        listEl.innerHTML = '<div class="text-center" style="padding: 20px; color: #999;">辞書が空です</div>';
+        return;
+      }
+      
+      let html = '';
+      dictionaryEntries.forEach(entry => {
+        html += `
+          <div class="dictionary-item">
+            <div class="dictionary-text">
+              <span class="dictionary-category">${entry.category}</span>
+              <div class="dictionary-correct">${entry.correct}</div>
+              <div class="dictionary-wrong">← ${entry.wrong}</div>
+            </div>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteDictionaryEntry('${entry.wrong}')">削除</button>
+          </div>
+        `;
+      });
+      
+      listEl.innerHTML = html;
+    }
+    
+    function addDictionaryEntry() {
+      const wrong = document.getElementById('wrongWord').value.trim();
+      const correct = document.getElementById('correctWord').value.trim();
+      
+      if (!wrong || !correct) {
+        alert('誤認識語と正しい表記を両方入力してください');
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            alert(result.message);
+            document.getElementById('wrongWord').value = '';
+            document.getElementById('correctWord').value = '';
+            loadDictionary();
+          } else {
+            alert('エラー: ' + result.error);
+          }
+        })
+        .addDictionaryEntry(wrong, correct, 'カスタム');
+    }
+    
+    function deleteDictionaryEntry(wrong) {
+      if (!confirm(`「${wrong}」を削除しますか?`)) {
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            loadDictionary();
+          } else {
+            alert('エラー: ' + result.error);
+          }
+        })
+        .deleteDictionaryEntry(wrong);
+    }
+    
+    function resetDictionary() {
+      if (!confirm('辞書を初期状態にリセットしますか？カスタム用語は全て削除されます。')) {
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            alert(result.message);
+            loadDictionary();
+          } else {
+            alert('エラー: ' + result.error);
+          }
+        })
+        .resetDictionary();
+    }
+    
+    function applyDictionary(text) {
+      let result = text;
+      dictionaryEntries.forEach(entry => {
+        const regex = new RegExp(entry.wrong, 'gi');
+        result = result.replace(regex, entry.correct);
+      });
+      return result;
+    }
+    
+    // =============================================================================
+    // 記録生成
+    // =============================================================================
+    
+    function generateRecord(recordType) {
+      const inputText = document.getElementById('inputText').value.trim();
+      
+      if (!inputText) {
+        alert('文字起こしテキストを入力してください');
+        return;
+      }
+      
+      const statusEl = document.getElementById('generationStatus');
+      statusEl.innerHTML = '<div class="status-message status-info"><div class="loading" style="margin-right: 8px;"></div>AI処理中... 30秒ほどお待ちください</div>';
+      statusEl.classList.remove('hidden');
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            document.getElementById('outputText').value = result.finalText;
+            document.getElementById('resultArea').classList.remove('hidden');
+            statusEl.innerHTML = '<div class="status-message status-success">✅ 記録文を生成しました</div>';
+            
+            setTimeout(() => {
+              statusEl.classList.add('hidden');
+            }, 3000);
+          } else {
+            statusEl.innerHTML = '<div class="status-message status-error">❌ エラー: ' + result.error + '</div>';
+          }
+        })
+        .withFailureHandler(function(error) {
+          statusEl.innerHTML = '<div class="status-message status-error">❌ エラー: ' + error.message + '</div>';
+        })
+        .generateRecordOneStep(inputText, recordType);
+    }
+    
+    // =============================================================================
+    // 履歴管理
+    // =============================================================================
+    
+    function loadAllRecords() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            allRecords = result.records;
+            renderHistory(allRecords);
+          }
+        })
+        .getAllRecords();
+    }
+    
+    function renderHistory(records) {
+      const listEl = document.getElementById('historyList');
+      
+      if (records.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center" style="padding: 40px 20px; color: #999;">
+            <p>記録がまだありません</p>
+            <p style="font-size: 12px; margin-top: 8px;">記録を保存すると、ここに表示されます</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      records.forEach(record => {
+        const date = new Date(record.updatedAt);
+        const dateStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'});
+        
+        const badgeClass = 
+          record.recordType === 'monitoring' ? 'badge-monitoring' :
+          record.recordType === 'plan' ? 'badge-plan' : 'badge-standard';
+        
+        const typeName = 
+          record.recordType === 'monitoring' ? 'モニタリング' :
+          record.recordType === 'plan' ? '支援計画' : '経過観察';
+        
+        const preview = record.finalText ? record.finalText.substring(0, 50) + '...' : '';
+        
+        html += `
+          <div class="history-item ${currentRecordId === record.id ? 'active' : ''}" onclick="loadRecord('${record.id}')">
+            <div class="history-title">${record.title}</div>
+            <div class="history-meta">
+              <span class="record-type-badge ${badgeClass}">${typeName}</span>
+              ${dateStr}
+            </div>
+            <div class="history-preview">${preview}</div>
+          </div>
+        `;
+      });
+      
+      listEl.innerHTML = html;
+    }
+    
+    function filterHistory() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
+      
+      if (!query) {
+        renderHistory(allRecords);
+        return;
+      }
+      
+      const filtered = allRecords.filter(record => {
+        return record.title.toLowerCase().includes(query) ||
+               record.finalText.toLowerCase().includes(query) ||
+               (record.userName && record.userName.toLowerCase().includes(query));
+      });
+      
+      renderHistory(filtered);
+    }
+    
+    function loadRecord(id) {
+      const record = allRecords.find(r => r.id === id);
+      if (!record) return;
+      
+      currentRecordId = id;
+      document.getElementById('recordTitle').value = record.title;
+      document.getElementById('inputText').value = record.inputText;
+      document.getElementById('outputText').value = record.finalText;
+      document.getElementById('resultArea').classList.remove('hidden');
+      
+      updateCharCount();
+      renderHistory(allRecords);
+      
+      // メインコンテンツまでスクロール（モバイル用）
+      if (window.innerWidth <= 768) {
+        document.querySelector('.main-content').scrollTop = 0;
+      }
+    }
+    
+    function saveCurrentRecord() {
+      const title = document.getElementById('recordTitle').value.trim() || '無題の記録';
+      const inputText = document.getElementById('inputText').value.trim();
+      const finalText = document.getElementById('outputText').value.trim();
+      
+      if (!finalText) {
+        alert('記録文が生成されていません');
+        return;
+      }
+      
+      const record = {
+        id: currentRecordId || null,
+        title: title,
+        inputText: inputText,
+        finalText: finalText,
+        recordType: 'standard',
+        createdAt: currentRecordId ? null : new Date().toISOString()
+      };
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            alert('✅ ' + result.message);
+            currentRecordId = result.id;
+            loadAllRecords();
+          } else {
+            alert('❌ エラー: ' + result.error);
+          }
+        })
+        .saveRecord(record);
+    }
+    
+    // =============================================================================
+    // ユーティリティ
+    // =============================================================================
+    
+    function copyToClipboard() {
+      const text = document.getElementById('outputText').value;
+      
+      if (!text) {
+        alert('コピーする内容がありません');
+        return;
+      }
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('✅ クリップボードにコピーしました');
+        }).catch(err => {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+    
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      
+      try {
+        document.execCommand('copy');
+        alert('✅ クリップボードにコピーしました');
+      } catch (err) {
+        alert('❌ コピーに失敗しました。手動でコピーしてください。');
+      }
+      
+      document.body.removeChild(textarea);
+    }
+    
+    function showMessage(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+    }
+  </script>
+</body>
+</html>
