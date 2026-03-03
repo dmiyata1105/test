@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>介護記録作成アシスタント - ダウンロード</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .file-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        
+        .file-card h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+        
+        .file-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .file-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .file-description {
+            color: #555;
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .steps {
+            background: #e7f3ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        
+        .steps ol {
+            margin-left: 20px;
+        }
+        
+        .steps li {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #856404;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .feature-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .feature-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 介護記録作成アシスタント</h1>
+            <p>Google Apps Script版 - ファイルダウンロード</p>
+        </div>
+        
+        <div class="content">
+            <!-- ファイルダウンロードセクション -->
+            <div class="section">
+                <h2 class="section-title">📥 ファイルダウンロード</h2>
+                
+                <!-- Code.gs -->
+                <div class="file-card">
+                    <h3>📄 Code.gs</h3>
+                    <div class="file-meta">
+                        <span>📊 サイズ: 17KB</span>
+                        <span>🏷️ タイプ: Google Apps Script</span>
+                    </div>
+                    <div class="file-description">
+                        <strong>バックエンドコード</strong><br>
+                        Gemini API連携、Google Sheets操作、データ管理機能を含むサーバーサイドコード。
+                        Google Apps Scriptの「Code.gs」ファイルにこの内容をコピーしてください。
+                    </div>
+                    <button class="btn" onclick="downloadFile('Code.gs')">💾 ダウンロード</button>
+                </div>
+                
+                <!-- index.html -->
+                <div class="file-card">
+                    <h3>📄 index.html</h3>
+                    <div class="file-meta">
+                        <span>📊 サイズ: 33KB</span>
+                        <span>🏷️ タイプ: HTML</span>
+                    </div>
+                    <div class="file-description">
+                        <strong>フロントエンドUI</strong><br>
+                        レスポンシブUI、音声入力機能、履歴・辞書管理を含むクライアントサイドコード。
+                        Google Apps Scriptに「index.html」として追加してください。
+                    </div>
+                    <button class="btn" onclick="downloadFile('index.html')">💾 ダウンロード</button>
+                </div>
+                
+                <!-- README.md -->
+                <div class="file-card">
+                    <h3>📄 README.md</h3>
+                    <div class="file-meta">
+                        <span>📊 サイズ: 11KB</span>
+                        <span>🏷️ タイプ: Markdown</span>
+                    </div>
+                    <div class="file-description">
+                        <strong>使い方ガイド</strong><br>
+                        機能説明、セットアップ手順、トラブルシューティングを含む総合ドキュメント。
+                        最初に読んでください。
+                    </div>
+                    <button class="btn" onclick="downloadFile('README.md')">💾 ダウンロード</button>
+                </div>
+                
+                <!-- SETUP.md -->
+                <div class="file-card">
+                    <h3>📄 SETUP.md</h3>
+                    <div class="file-meta">
+                        <span>📊 サイズ: 16KB</span>
+                        <span>🏷️ タイプ: Markdown</span>
+                    </div>
+                    <div class="file-description">
+                        <strong>詳細セットアップガイド</strong><br>
+                        ステップバイステップの詳細手順、よくある質問、エラー対処法を含む完全ガイド。
+                        初めての方はこちらを参照してください。
+                    </div>
+                    <button class="btn" onclick="downloadFile('SETUP.md')">💾 ダウンロード</button>
+                </div>
+                
+                <!-- 全ファイル一括 -->
+                <div class="file-card" style="border-left-color: #28a745;">
+                    <h3>📦 全ファイル一括ダウンロード</h3>
+                    <div class="file-meta">
+                        <span>📊 サイズ: 約80KB</span>
+                        <span>🏷️ ファイル数: 4</span>
+                    </div>
+                    <div class="file-description">
+                        <strong>推奨: 全ファイルをまとめてダウンロード</strong><br>
+                        上記4つのファイル全てを一度にダウンロードできます。
+                    </div>
+                    <button class="btn" style="background: #28a745;" onclick="downloadAllFiles()">📦 全てダウンロード</button>
+                </div>
+            </div>
+            
+            <!-- セットアップ手順 -->
+            <div class="section">
+                <h2 class="section-title">🚀 セットアップ手順</h2>
+                <div class="steps">
+                    <ol>
+                        <li><strong>ファイルをダウンロード</strong> - 上記から全ファイルをダウンロード</li>
+                        <li><strong>SETUP.mdを読む</strong> - 詳細な手順を確認</li>
+                        <li><strong>Google Apps Scriptを開く</strong> - <a href="https://script.google.com/" target="_blank">script.google.com</a> にアクセス</li>
+                        <li><strong>新しいプロジェクト作成</strong> - 「新しいプロジェクト」をクリック</li>
+                        <li><strong>Code.gsをコピペ</strong> - ダウンロードしたCode.gsの内容をコピー</li>
+                        <li><strong>index.htmlを追加</strong> - HTMLファイルを追加してコピペ</li>
+                        <li><strong>Gemini APIキー取得</strong> - <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> で取得</li>
+                        <li><strong>デプロイ</strong> - ウェブアプリとしてデプロイ</li>
+                        <li><strong>APIキー設定</strong> - 初回起動時にAPIキーを入力</li>
+                        <li><strong>使用開始</strong> - 音声入力で記録作成開始！</li>
+                    </ol>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 所要時間: 約15分</strong>
+                    初めての方でもSETUP.mdの手順に従えば簡単にセットアップできます。
+                </div>
+            </div>
+            
+            <!-- 主な機能 -->
+            <div class="section">
+                <h2 class="section-title">✨ 主な機能</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎤</div>
+                        <div class="feature-title">音声入力</div>
+                        <div class="feature-desc">リアルタイム文字起こし<br>iPad/iPhone対応</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-title">AI記録生成</div>
+                        <div class="feature-desc">3種類の記録形式<br>Gemini API統合</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📚</div>
+                        <div class="feature-title">履歴管理</div>
+                        <div class="feature-desc">Google Sheets保存<br>全文検索可能</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📖</div>
+                        <div class="feature-title">用語辞書</div>
+                        <div class="feature-desc">70語+カスタム<br>自動変換</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <div class="feature-title">完全レスポンシブ</div>
+                        <div class="feature-desc">iPad/iPhone最適化<br>タッチ操作対応</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💰</div>
+                        <div class="feature-title">完全無料</div>
+                        <div class="feature-desc">月5000回まで<br>無料で使用可能</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- システム要件 -->
+            <div class="section">
+                <h2 class="section-title">💻 システム要件</h2>
+                <div class="steps">
+                    <ul>
+                        <li>✅ <strong>Googleアカウント</strong> - 必須（無料）</li>
+                        <li>✅ <strong>ブラウザ</strong> - Chrome、Safari、Edge</li>
+                        <li>✅ <strong>音声入力</strong> - Safari（iOS/iPadOS）推奨</li>
+                        <li>✅ <strong>API</strong> - Google Gemini API（無料枠あり）</li>
+                        <li>✅ <strong>インターネット接続</strong> - 必須</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>介護記録作成アシスタント v1.0.0</strong></p>
+            <p>リリース日: 2026年2月17日</p>
+            <p style="margin-top: 8px;">© 2026 - 個人・商用利用自由</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ファイル内容をエンコード（実際のファイルパスから取得）
+        const files = {
+            'Code.gs': '../Code.gs',
+            'index.html': '../index.html',
+            'README.md': '../README.md',
+            'SETUP.md': '../SETUP.md'
+        };
+        
+        function downloadFile(filename) {
+            // ファイルをダウンロード
+            const link = document.createElement('a');
+            link.href = files[filename];
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // フィードバック
+            alert('✅ ' + filename + ' をダウンロードしました！\n\nSETUP.mdを読んで、Google Apps Scriptにコピーしてください。');
+        }
+        
+        function downloadAllFiles() {
+            // 全ファイルを順番にダウンロード
+            const fileNames = Object.keys(files);
+            let index = 0;
+            
+            function downloadNext() {
+                if (index < fileNames.length) {
+                    const filename = fileNames[index];
+                    const link = document.createElement('a');
+                    link.href = files[filename];
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    index++;
+                    setTimeout(downloadNext, 500); // 0.5秒待ってから次のファイル
+                } else {
+                    alert('✅ 全ファイルのダウンロードが完了しました！\n\n次のステップ:\n1. SETUP.mdを開いて手順を確認\n2. Google Apps Scriptにコードをコピー\n3. デプロイして使用開始');
+                }
+            }
+            
+            downloadNext();
+        }
+    </script>
+</body>
+</html>
